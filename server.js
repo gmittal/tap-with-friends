@@ -1,37 +1,53 @@
-var http = require("http"),
-    url = require("url"),
-    path = require("path"),
-    fs = require("fs")
-    port = process.argv[2] || 50000;
+var express = require('express');
+var app = express();
 
-http.createServer(function(request, response) {
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://107.170.245.170:27000');
 
-  var uri = url.parse(request.url).pathname
-    , filename = path.join(process.cwd(), uri);
+var port = 5000;
 
-  path.exists(filename, function(exists) {
-    if(!exists) {
-      response.writeHead(404, {"Content-Type": "text/plain"});
-      response.write("404 Not Found\n");
-      response.end();
-      return;
-    }
 
-    if (fs.statSync(filename).isDirectory()) filename += '/index.html';
+app.use(express.static(__dirname + ""));
 
-    fs.readFile(filename, "binary", function(err, file) {
-      if(err) {        
-        response.writeHead(500, {"Content-Type": "text/plain"});
-        response.write(err + "\n");
-        response.end();
-        return;
-      }
+app.use(function(req, res, next) {
+  if (/\/hidden\/*/.test(req.path)) {
+    return res.send(404, "Not Found"); // or 403, etc
+  }
+  next();
+});
 
-      response.writeHead(200);
-      response.write(file, "binary");
-      response.end();
-    });
+app.get('/', function (req, res) {
+  res.send('Hello World!');
+});
+
+app.get('/:tap_party_name', function (req, res) {
+  res.sendFile(__dirname + '/tap.html');
+
+});
+
+
+var io = require('socket.io').listen(app.listen(process.env.PORT || port));
+
+var totalTaps = 0;
+
+io.on('connection', function (socket) {
+  
+
+  socket.on('taps', function (data) {
+    // console.log(data);
+    totalTaps += 1;
+
+
+    
+
   });
-}).listen(parseInt(port, 10));
 
-console.log("Server running at http://localhost:" + port + "/\n CTRL + C to shutdown.");
+  setInterval(function() { socket.emit('totalTaps', {taps: totalTaps}); }, 1);
+
+
+
+});
+
+
+
+
