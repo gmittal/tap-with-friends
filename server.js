@@ -1,8 +1,8 @@
 var express = require('express');
 var app = express();
 
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://107.170.245.170:27000');
+var mongojs = require('mongojs');
+var db = mongojs('mongodb://107.170.245.170:27000', ['global']);
 
 var port = 5000;
 
@@ -21,7 +21,14 @@ app.get('/', function (req, res) {
 });
 
 app.get('/:tap_party_name', function (req, res) {
+	console.log(req.param("tap_party_name").toLowerCase());
+	var id = req.param("tap_party_name").toLowerCase();
+
+	db.global.save({'id': id, 'taps': 0});
+
   res.sendFile(__dirname + '/tap.html');
+
+  totalTaps
 
 });
 
@@ -30,7 +37,10 @@ var io = require('socket.io').listen(app.listen(process.env.PORT || port));
 
 var totalTaps = 0;
 
+                  
+
 io.on('connection', function (socket) {
+	// totalTaps.push()
   
 
   socket.on('taps', function (data) {
