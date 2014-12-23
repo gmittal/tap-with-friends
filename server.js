@@ -1,11 +1,13 @@
 var express = require('express');
 var app = express();
 
-var mongojs = require('mongojs');
-var db = mongojs('mongodb://107.170.245.170:27000', ['global']);
+// var mongojs = require('mongojs');
+// var db = mongojs('mongodb://107.170.245.170:27000', ['global']);
+var Firebase = require('firebase');
 
 var port = 5000;
 
+var globalDB = new Firebase("https://tap-78901.firebaseio.com/");
 
 app.use(express.static(__dirname + ""));
 
@@ -24,11 +26,10 @@ app.get('/:tap_party_name', function (req, res) {
 	console.log(req.param("tap_party_name").toLowerCase());
 	var id = req.param("tap_party_name").toLowerCase();
 
-	db.global.save({'id': id, 'taps': 0});
 
-  res.sendFile(__dirname + '/tap.html');
 
-  totalTaps
+	  res.sendFile(__dirname + '/tap.html');
+
 
 });
 
@@ -40,24 +41,51 @@ var totalTaps = 0;
                   
 
 io.on('connection', function (socket) {
-	// totalTaps.push()
-  
 
   socket.on('taps', function (data) {
-    // console.log(data);
-    totalTaps += 1;
+
+    var roomName = data.name;
+    var json={};
+    var db1 = new Firebase("https://tap-78901.firebaseio.com/"+data.name+"/"+data.name);
+    var db2 = new Firebase("https://tap-78901.firebaseio.com/"+data.name);
+    db1.once('value', function (snap) {
+    	
+
+    	if (snap.val() != null) {
+    		var integerVal = parseInt(snap.val(), 10);
+	    	
+	    	json[roomName] =  integerVal+= 1;
+    	} else {
+    		json[roomName] = 1;
+    	}
+
+    	    db2.set(json, function() {
+
+		    });;
+    	
+    });
 
 
     
 
   });
 
-  setInterval(function() { socket.emit('totalTaps', {taps: totalTaps}); }, 1);
 
+  setInterval(function() {
+
+  		  	globalDB.once('value', function (snapshot) {
+  	
+
+				snapshot.forEach(function (data1) {
+			
+					socket.emit(data1.key(), {taps: data1.val()[data1.key()]});
+				});
+
+			});
+  }, 50);
 
 
 });
 
 
-
-
+console.log('Listening on port ' + port);

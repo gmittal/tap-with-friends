@@ -15,7 +15,7 @@
 
  function tap() {
     taps += 1;
-    socket.emit('taps', { taps: '1' });
+    socket.emit('taps', { 'taps': '1', 'name': room });
 
  }
 
@@ -47,7 +47,7 @@
 
   var socket = io('http://yo.ngrok.com');
 
-  socket.on('totalTaps', function (data) {
+  socket.on(room, function (data) {
     console.log(data);
     updateDisplay(numeral(data.taps).format('0,0'));
     
