@@ -1,0 +1,32 @@
+{
+  "name": "tap-with-friends",
+  "version": "1.0.0",
+  "description": "Multiplayer cookie clicker demo.",
+  "main": "server.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gmittal/tap-with-friends.git"
+  },
+  "keywords": [
+    "tap",
+    "with",
+    "friends"
+  ],
+  "author": "Gautam Mittal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gmittal/tap-with-friends/issues"
+  },
+  "homepage": "https://github.com/gmittal/tap-with-friends#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "firebase": "^3.6.4"
+  }
+}
